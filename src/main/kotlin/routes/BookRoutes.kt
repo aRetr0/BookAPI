@@ -14,7 +14,8 @@ val myBooks = mutableListOf<Book>()
 fun Application.bookRoutes() {
     routing {
         get("/books") {
-            call.respond(myBooks)
+            if (myBooks.isNotEmpty()) call.respond(myBooks)
+            else call.respondText("No hay libros en la lista")
         }
         post("/books") {
             try {
