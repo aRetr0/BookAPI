@@ -28,27 +28,21 @@ fun Application.bookRoutes() {
             }
         }
         put("/books/{id}") {
+
             try {
-                val id: String? = call.parameters["id"]
-                // verifica si me ha dado un id
-                if (id.isNullOrBlank()) throw Exception("No se ha dado id")
+                val index: Int = checkId(call.parameters["id"])
 
-                // si ha dado id, busco el libro
-                val index = myBooks.indexOfFirst { it.id == id }
-                if (index != -1) {
-                    myBooks[index] = call.receive<Book>()
-                    call.respondText("Libro editado:\n ${myBooks[index]}")
-                } else throw Exception("Id no existe") // si no encuentra el libro lo comunico
-
+                myBooks[index] = call.receive<Book>()
+                call.respondText("Libro editado:\n ${myBooks[index]}")
             } catch (e: Exception) {
                 call.respondText("No se ha podido editar: ${e.message}")
             }
         }
         delete("/books/{id}") {
             try {
-                val book: Book = checkId(call.parameters["id"])
+                val index: Int = checkId(call.parameters["id"])
 
-                myBooks.remove(book)
+                myBooks.removeAt(index)
                 call.respondText("Libro eliminado")
             } catch (e: Exception) {
                 call.respondText("No se ha podido eliminar: ${e.message}")
@@ -57,12 +51,12 @@ fun Application.bookRoutes() {
     }
 }
 
-fun checkId(id: String?): Book {
+fun checkId(id: String?): Int {
     if (id.isNullOrBlank()) throw Exception("No se ha dado un id")
 
     // si ha dado id, busco el libro
     val index = myBooks.indexOfFirst { it.id == id }
     if (index != -1) {
-        return myBooks[index]
+        return index
     } else throw Exception("Id no existe") // si no encuentra el libro lo comunico
 }
