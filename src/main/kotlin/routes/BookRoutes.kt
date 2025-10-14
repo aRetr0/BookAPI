@@ -5,6 +5,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
@@ -40,8 +41,28 @@ fun Application.bookRoutes() {
                 } else throw Exception("Id no existe") // si no encuentra el libro lo comunico
 
             } catch (e: Exception) {
-                call.respondText("No se ha podido encontrar: ${e.message}")
+                call.respondText("No se ha podido editar: ${e.message}")
+            }
+        }
+        delete("/books/{id}") {
+            try {
+                val book: Book = checkId(call.parameters["id"])
+
+                myBooks.remove(book)
+                call.respondText("Libro eliminado")
+            } catch (e: Exception) {
+                call.respondText("No se ha podido eliminar: ${e.message}")
             }
         }
     }
+}
+
+fun checkId(id: String?): Book {
+    if (id.isNullOrBlank()) throw Exception("No se ha dado un id")
+
+    // si ha dado id, busco el libro
+    val index = myBooks.indexOfFirst { it.id == id }
+    if (index != -1) {
+        return myBooks[index]
+    } else throw Exception("Id no existe") // si no encuentra el libro lo comunico
 }
